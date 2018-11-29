@@ -11,7 +11,8 @@ const { path: ffmpegPath } = require('ffmpeg-static')
 const nms = require('./rtmp.js')
 
 const PORT = process.env.PORT || 3000
-const STREAM_PATH = `rtmp://localhost:${process.env.RTMP_PORT}/live/NOT_STREAM_NAME`
+const STREAM_PATH = process.env.STREAM_NAME ||
+	`rtmp://localhost:${process.env.RTMP_PORT}/live/STREAM_NAME`
 
 function getVideoSource () {
 	var proc = spawn(ffmpegPath, [
@@ -81,9 +82,8 @@ server.listen(PORT, function () {
 
 	let published = false
 
-	nms.on('postPublish', (id, StreamPath, args) => {
-		if (!published) {
-			// /live/NOT_STREAM_NAME
+	nms.on('postPublish', (/*id, StreamPath, args */) => {
+		if (!published) { // StreamPath /live/STREAM_NAME
 			published = true
 			setImmediate(function () {
 				const screenStream = getVideoSource()
