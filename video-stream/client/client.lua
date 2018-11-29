@@ -1,5 +1,5 @@
 local streamURL = 'ws://192.168.1.142:3000/'
-local duiURL = "http://192.168.1.142:30120/video-dui/index.html"
+local duiURL = "http://192.168.1.142:3000/dui/index.html"
 
 function CreateNamedRenderTargetForModel(name, model)
 	local handle = 0
@@ -81,7 +81,7 @@ Citizen.CreateThread(function ()
 	end
 end)
 
-RegisterCommand('video-dui', function (source, arg, rawInput)
+RegisterCommand('video-stream', function (source, arg, rawInput)
 	print('SET DUI URL')
 
 	SendDuiMessage(duiObj, json.encode({

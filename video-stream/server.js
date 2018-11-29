@@ -1,18 +1,23 @@
 require(require.resolve('./compat.js'))
 require('dotenv').config()
 
-const port = process.env.PORT || 3000
 const path = require('path')
 const http = require('http')
 const WebSocket = require('ws')
+const finalhandler = require('finalhandler')
+const serveStatic = require('serve-static')
 const { spawn } = require('child_process')
 const { path: ffmpegPath } = require('ffmpeg-static')
+const nms = require('./rtmp.js')
+
+const PORT = process.env.PORT || 3000
+const STREAM_PATH = `rtmp://localhost:${process.env.RTMP_PORT}/live/NOT_STREAM_NAME`
 
 function getVideoSource () {
 	var proc = spawn(ffmpegPath, [
 		'-loglevel', 'error',
 		'-re',
-		'-i', 'rtmp://localhost:1935/live/NOT_STREAM_NAME',
+		'-i', STREAM_PATH,
 		'-f', 'mpegts',
 		'-c:a', 'mp2',
 		'-c:v', 'mpeg1video',
@@ -21,22 +26,10 @@ function getVideoSource () {
 	return proc.stdout
 }
 
-const screenStream = getVideoSource()
-
-screenStream.on('readable', () => {
-	const data = screenStream.read()
-
-	wss.broadcast(data)
-})
-
-
 let wss
-const finalhandler = require('finalhandler')
-const serveStatic = require('serve-static')
 const serve = serveStatic(path.join(__dirname, './public'), {
 	index: ['index.html']
 })
-
 
 const server = http.createServer(function(req, res) {
 	res.setHeader('Access-Control-Allow-Origin', '*')
@@ -59,19 +52,19 @@ wss.broadcast = function(data) {
 
 wss.on('connection', function(socket, upgradeReq) {
 	wss.connectionCount++
+
 	console.log(
-		'New WebSocket Connection: ',
-		(upgradeReq || socket.upgradeReq).socket.remoteAddress,
-		(upgradeReq || socket.upgradeReq).headers['user-agent'],
+		'WebSocket Connection: ',
+		// (upgradeReq || socket.upgradeReq).socket.remoteAddress,
+		// (upgradeReq || socket.upgradeReq).headers['user-agent'],
 		'('+wss.connectionCount+' total)'
 	)
 
 	socket.send('Welcome')
 
 	socket.on('message', function (msg) {
-		console.log('RECEIVED MESSAGE', msg)
+		// console.log('RECEIVED MESSAGE', msg)
 	})
-
 
 	socket.on('close', function(/* code, message */){
 		wss.connectionCount--
@@ -81,7 +74,26 @@ wss.on('connection', function(socket, upgradeReq) {
 	})
 })
 
+server.listen(PORT, function () {
+	console.log('[video-stream] resource: http://127.0.0.1:'+ PORT)
 
-server.listen(port, function () {
-	console.log('[video-stream] resource: http://127.0.0.1:'+ port)
+	nms.run()
+
+	let published = false
+
+	nms.on('postPublish', (id, StreamPath, args) => {
+		if (!published) {
+			// /live/NOT_STREAM_NAME
+			published = true
+			setImmediate(function () {
+				const screenStream = getVideoSource()
+
+				screenStream.on('readable', ()=> {
+					const data = screenStream.read()
+
+					wss.broadcast(data)
+				})
+			})
+		}
+	})
 })
