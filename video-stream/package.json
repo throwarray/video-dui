@@ -9,11 +9,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^6.1.0",
+    "dotenv": "^6.2.0",
     "ffmpeg-static": "^2.4.0",
     "finalhandler": "^1.1.1",
-    "node-media-server": "^1.4.7",
+    "node-media-server": "^1.4.10",
     "serve-static": "^1.13.2",
-    "ws": "^6.1.2"
+    "ws": "^6.1.3"
   }
 }

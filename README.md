@@ -2,8 +2,6 @@
 
 # INSTALL
 
-- `cd video-stream && npm i`
-
 ```
 start video-stream
 ```

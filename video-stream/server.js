@@ -51,7 +51,7 @@ wss.broadcast = function(data) {
 	})
 }
 
-wss.on('connection', function(socket, upgradeReq) {
+wss.on('connection', function(socket /*, upgradeReq*/) {
 	wss.connectionCount++
 
 	console.log(
@@ -63,7 +63,7 @@ wss.on('connection', function(socket, upgradeReq) {
 
 	socket.send('Welcome')
 
-	socket.on('message', function (msg) {
+	socket.on('message', function (/*msg*/) {
 		// console.log('RECEIVED MESSAGE', msg)
 	})
 
