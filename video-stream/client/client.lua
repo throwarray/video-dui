@@ -3,9 +3,12 @@
 
 local duiURL = "http://192.168.1.142:3000/dui/index.html"
 local activationRange = 35.0
-local screenCoords = vector3(-1150.3218994141, 4924.1640625, 221.38273620605)
+local screenCoords = vector3(320.217, 263.81, 82.974)
 
 RegisterCommand('video-stream', function (source, arg, rawInput)
+	cinema = GetInteriorAtCoords(320.217, 263.81, 82.974)
+
+	LoadInterior(cinema)
 	SetEntityCoords(PlayerPedId(), screenCoords.x, screenCoords.y, screenCoords.z)
 end)
 
@@ -16,8 +19,8 @@ local screenWidth = math.floor(1280 / scale)
 local screenHeight = math.floor(720 / scale)
 local shouldDraw = false
 local screen = 0
-local model = GetHashKey('xm_prop_x17dlc_monitor_wall_01a')
-local handle = CreateNamedRenderTargetForModel('prop_x17dlc_monitor_wall_01a', model)
+local screenModel = GetHashKey('v_ilev_cin_screen')
+local handle = CreateNamedRenderTargetForModel('cinscreen', screenModel)
 
 local txd = Citizen.InvokeNative(GetHashKey("CREATE_RUNTIME_TXD"), 'video', Citizen.ResultAsLong())
 local duiObj = Citizen.InvokeNative(GetHashKey('CREATE_DUI'), 'about:blank', screenWidth, screenHeight, Citizen.ResultAsLong())
@@ -28,7 +31,10 @@ Citizen.CreateThread(function ()
 	local playerPed
 	local playerCoords
 
-	screen = CreateObj(model, screenCoords, 270.0, false)
+	LoadModel(screenModel)
+	screen = CreateObjectNoOffset(screenModel,  screenCoords, 0, true, false)
+	SetEntityHeading(screen, 179.99998474121)
+	SetModelAsNoLongerNeeded(screenModel)
 
 	while true do
 		playerPed = PlayerPedId()

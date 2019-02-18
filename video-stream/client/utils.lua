@@ -30,14 +30,3 @@ function LoadModel (model)
 
 	return model
 end
-
-function CreateObj (model, coords, ang, networked)
-	LoadModel(model)
-
-	local entity = CreateObject(model, coords.x, coords.y, coords.z, networked == true, true, false)
-
-	SetEntityHeading(entity, ang or 0.0)
-	SetModelAsNoLongerNeeded(model)
-
-	return entity
-end

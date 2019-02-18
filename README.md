@@ -17,8 +17,6 @@ Stream key: STREAM_NAME?secret=secret
 
 Type `/video-stream` to start streaming
 
-The DUI object is located at the Altruist Camp
-
 # Contribute
 
 ## Issues
