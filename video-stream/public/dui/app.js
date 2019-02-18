@@ -15,7 +15,9 @@ const player = new window.JSMpeg.Player(url, {
 		// Reload the page when the video is finished?
 		if (action && typeof action == 'object') {
 			if (action.type == 'video-stream:close') {
-				window.location.reload()
+				setTimeout(function () {
+					window.location.reload()
+				}, 500)
 			}
 		}
 	}),
@@ -23,3 +25,5 @@ const player = new window.JSMpeg.Player(url, {
 	streaming: true,
 	autoplay: true
 })
+
+console.log('[video-stream] dui ready')

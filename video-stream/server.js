@@ -10,29 +10,34 @@ const finalhandler = require('finalhandler')
 const serveStatic = require('serve-static')
 const { spawn } = require('child_process')
 const { path: ffmpegPath } = require('ffmpeg-static')
-const nms = require(path.join(resourcePath, './rtmp.js'))
+const { NodeMediaServer } = require('node-media-server')
 
+const RTMP_ENABLED = process.env.RTMP_ENABLED || 0
+const RTMP_PORT = process.env.RTMP_PORT || 1935
+const RTMP_SECRET = process.env.RTMP_SECRET || 'secret'
 const PORT = process.env.PORT || 3000
-const STREAM_PATH = process.env.STREAM_NAME ||
-	`rtmp://localhost:${process.env.RTMP_PORT}/live/STREAM_NAME`
+const STREAM_PATH = process.env.STREAM_PATH ||
+	`rtmp://localhost:${RTMP_PORT}/live/STREAM_NAME`
 
-let ffmpegProc
+let streamProc
 let published = false
 
-function getVideoSource () {
-	ffmpegProc = spawn(ffmpegPath, [
+// Process stream source
+function VideoStream (filePath = STREAM_PATH) {
+	const stream = spawn(ffmpegPath, [
 		'-loglevel', 'error',
 		'-re',
-		'-i', STREAM_PATH,
+		'-i', filePath,
 		'-f', 'mpegts',
 		'-c:a', 'mp2',
 		'-c:v', 'mpeg1video',
 		'pipe:1'
 	], { stdio: ['pipe', 'pipe', process.stderr] })
-	return ffmpegProc.stdout
+
+	return stream
 }
 
-// HTTP Server for dui scripts
+// HTTPServer for DUI scripts
 const serve = serveStatic(path.join(resourcePath, './public'), {
 	index: ['index.html']
 })
@@ -43,8 +48,8 @@ const server = http.createServer(function(req, res) {
 	serve(req, res, finalhandler(req, res))
 })
 
-// Websocket Server to relay video data
-let wss = new WebSocket.Server({ server, perMessageDeflate: false })
+// WebsocketServer to relay video data
+const wss = new WebSocket.Server({ server, perMessageDeflate: false })
 
 wss.connectionCount = 0
 wss.broadcast = function(data) {
@@ -55,75 +60,123 @@ wss.broadcast = function(data) {
 	})
 }
 
+// Streamer connected
 wss.on('connection', function(socket /*, upgradeReq*/) {
 	wss.connectionCount++
 
 	console.log('Streamer Connection: ', '('+wss.connectionCount+' total)')
 
-	socket.on('close', function(/* code, message */){
-		wss.connectionCount--
-		console.log('Streamer disconnected ('+wss.connectionCount+' total)')
+	socket.on('close', function(/* code, message */) {
+		if (wss.connectionCount > 0) {
+			wss.connectionCount--
+			console.log('Streamer disconnected ('+wss.connectionCount+' total)')
+		}
 	})
 
 	socket.send(JSON.stringify({
 		type: 'video-stream:join',
-		payload: {}
+		payload: { published }
 	}))
 
-	//socket.on('message', function (msg) {})
+	// Handle client messages
+	socket.on('message', function (/*msg*/) {})
 })
+
+// Stream was started
+function onPostPublish (stream) {
+	if (published) return
+
+	published = true
+
+	console.log('video-stream stream started.')
+
+	setImmediate(function () {
+		// Process video with ffmpeg
+		if(!stream) stream = VideoStream(STREAM_PATH)
+
+		wss.broadcast((JSON.stringify({ type: 'video-stream:open' })))
+
+		// Send video to consummers
+		streamProc = stream
+		stream = stream.stdout
+
+		stream.on('readable', ()=> {
+			const data = stream.read()
+
+			wss.broadcast(data)
+		})
+	})
+}
+
+// Stream was ended
+function onDonePublish (stream) {
+	if (published) {
+		if (stream) stream.kill()
+
+		published = false
+
+		wss.broadcast((JSON.stringify({ type: 'video-stream:close' })))
+
+		console.log('video-stream stream stopped.')
+	}
+}
 
 // Start http server
 server.listen(PORT, function () {
-	console.log('[video-stream] resource: http://127.0.0.1:'+ PORT)
+	console.log('[video-stream] httpServer started',
+		'http://127.0.0.1:'+ PORT + '/dui/index.html'
+	)
 
-	// Start rtmp server
-	nms.run()
+	// Start optional rtmp server
+	if (RTMP_ENABLED) {
+		console.log('[video-stream] rtmpServer started', STREAM_PATH)
 
-	// Stream in use
-	nms.on('prePublish', (id /*, streamPath, args*/) => {
-		const session = nms.getSession(id)
+		const nms = new NodeMediaServer({
+			logType: 1,
+			rtmp: {
+				port: RTMP_PORT,
+				allow_origin: '*',
+				chunk_size: 60000,
+				gop_cache: true,
+				ping: 60,
+				ping_timeout: 30
+			}
+		})
 
-		if (published) {
-			console.log('video-stream stream already in use.')
+		nms.run()
 
-			return session.reject()
-		}
-	})
+		nms.on('prePublish', (id, streamPath, args) => {
+			const session = nms.getSession(id)
 
-	// Handle video publish
-	nms.on('postPublish', () => {
-		if (!published) {
-			published = true
+			// FIXME
+			if (args.secret !== RTMP_SECRET) {
+				session.reject()
 
-			console.log('video-stream stream started.')
+				return
+			}
 
-			setImmediate(function () {
-				// Process video with ffmpeg
-				const screenStream = getVideoSource()
+			if (published) {
+				console.log('video-stream stream already in use.')
 
-				wss.broadcast((JSON.stringify({ type: 'video-stream:open', payload: {} })))
+				return session.reject()
+			}
+		})
 
-				// Send video to consummers
-				screenStream.on('readable', ()=> {
-					const data = screenStream.read()
+		nms.on('postPublish', () => { onPostPublish() })
 
-					wss.broadcast(data)
-				})
-			})
-		}
-	})
-
-	// Stream was ended
-	nms.on('donePublish', (/*id*/) => {
-		if (published) {
-			ffmpegProc.kill()
-			ffmpegProc = null
-			published = false
-
-			wss.broadcast((JSON.stringify({ type: 'video-stream:close', payload: {} })))
-
-			console.log('video-stream stream stopped.')
-		}
-	})
+		nms.on('donePublish', (/*id*/) => { onDonePublish(streamProc) })
+	}
 })
+
+// Add command to set stream from path (non obs source)
+if (global.RegisterCommand) {
+	global.RegisterCommand('video-stream:set', function (src, arg) {
+		if (arg[0]) {
+			if (streamProc) streamProc.kill()
+
+			streamProc = VideoStream(arg[0])
+
+			onPostPublish(streamProc)
+		}
+	}, true)
+}
