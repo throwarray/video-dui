@@ -54,8 +54,6 @@ local scale = 1.5
 local screenWidth = math.floor(1280 / scale)
 local screenHeight = math.floor(720 / scale)
 
-
-
 local screen = 0
 local model = GetHashKey('xm_prop_x17dlc_monitor_wall_01a')
 local handle = CreateNamedRenderTargetForModel('prop_x17dlc_monitor_wall_01a', model)
@@ -87,16 +85,8 @@ Citizen.CreateThread(function ()
 end)
 
 RegisterCommand('video-stream', function (source, arg, rawInput)
-	print('SET DUI URL')
-
-	SendDuiMessage(duiObj, json.encode({
-		type = 'play',
-		payload = {
-			url = streamURL
-		}
-	}))
+	SetDuiUrl(duiObj, duiURL .. '?url=' .. streamURL)
 end)
-
 
 Citizen.CreateThread(function ()
 	local nX = 0
@@ -146,9 +136,7 @@ end)
 
 AddEventHandler('onResourceStop', function (resource)
 	if resource == GetCurrentResourceName() then
-		SendDuiMessage(duiObj, json.encode({
-			type = 'play', payload = { url = '' }
-		}))
+		SetDuiUrl(duiObj, 'about:blank')
 		DestroyDui(duiObj)
 		Citizen.InvokeNative(0xE9F6FFE837354DD4, 'tvscreen')
 		SetEntityAsMissionEntity(screen,  false,  true)

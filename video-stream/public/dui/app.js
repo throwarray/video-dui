@@ -1,15 +1,6 @@
 const canvas = document.getElementById('video-canvas')
 const query = parseQuery(window.location.search)
 
-window.onmessage = function ({ data }) {
-	if (data) {
-		if (data.type === 'play') {
-			window.location.search = '?url=' +
-			encodeURIComponent(data.payload.url || '')
-		}
-	}
-}
-
 function parseQuery(queryString = '') {
 	let query = {}
 	let pairs = (queryString[0] === '?' ?
@@ -28,10 +19,10 @@ function parseQuery(queryString = '') {
 if (query.url) {
 	const player = new window.JSMpeg.Player(query.url, {
 		source: window.JSMpeg.Source.WebSocket(function () {
-			console.log('Connected to ws')
+			// console.log('Connected to ws')
 			player.source.socket.send('client-ready')
-		}, function (action) {
-			console.log('Received server action', action)
+		}, function (/*action*/) {
+			// console.log('Received server action', action)
 		}),
 		canvas,
 		streaming: true,

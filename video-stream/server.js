@@ -1,14 +1,16 @@
-require(require.resolve('./compat.js'))
-require('dotenv').config()
-
 const path = require('path')
+const resourcePath = global.GetResourcePath?
+	global.GetResourcePath(global.GetCurrentResourceName()) : global.__dirname
+
+require('dotenv').config({ path: path.join(resourcePath, './.env') })
+
 const http = require('http')
 const WebSocket = require('ws')
 const finalhandler = require('finalhandler')
 const serveStatic = require('serve-static')
 const { spawn } = require('child_process')
 const { path: ffmpegPath } = require('ffmpeg-static')
-const nms = require('./rtmp.js')
+const nms = require(path.join(resourcePath, './rtmp.js'))
 
 const PORT = process.env.PORT || 3000
 const STREAM_PATH = process.env.STREAM_NAME ||
@@ -28,7 +30,7 @@ function getVideoSource () {
 }
 
 let wss
-const serve = serveStatic(path.join(__dirname, './public'), {
+const serve = serveStatic(path.join(resourcePath, './public'), {
 	index: ['index.html']
 })
 

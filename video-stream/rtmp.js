@@ -1,5 +1,8 @@
-require(require.resolve('./compat.js'))
-require('dotenv').config()
+const path = require('path')
+const resourcePath = global.GetResourcePath?
+	global.GetResourcePath(global.GetCurrentResourceName()) : global.__dirname
+
+require('dotenv').config({ path: path.join(resourcePath, './.env') })
 
 const secret = process.env.RTMP_SECRET || 'secret'
 const port = process.env.RTMP_PORT || 1935
