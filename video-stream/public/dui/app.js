@@ -1,31 +1,25 @@
 const canvas = document.getElementById('video-canvas')
-const query = parseQuery(window.location.search)
+const port = document.location.port? ':' + document.location.port : ''
+const url = 'ws://' + document.location.hostname + port + '/'
 
-function parseQuery(queryString = '') {
-	let query = {}
-	let pairs = (queryString[0] === '?' ?
-		queryString.substr(1) : queryString).split('&')
-
-	for (let i = 0; i < pairs.length; i++) {
-		if (pairs[i]) {
-			let pair = pairs[i].split('=')
-			query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '')
+const player = new window.JSMpeg.Player(url, {
+	source: window.JSMpeg.Source.WebSocket(function () {
+		player.source.socket.send('video-stream:join')
+	}, function (action) {
+		try {
+			action = JSON.parse(action)
+		} catch (e) {
+			return
 		}
-	}
 
-	return query
-}
-
-if (query.url) {
-	const player = new window.JSMpeg.Player(query.url, {
-		source: window.JSMpeg.Source.WebSocket(function () {
-			// console.log('Connected to ws')
-			player.source.socket.send('client-ready')
-		}, function (/*action*/) {
-			// console.log('Received server action', action)
-		}),
-		canvas,
-		streaming: true,
-		autoplay: true
-	})
-}
+		// Reload the page when the video is finished?
+		if (action && typeof action == 'object') {
+			if (action.type == 'video-stream:close') {
+				window.location.reload()
+			}
+		}
+	}),
+	canvas,
+	streaming: true,
+	autoplay: true
+})

@@ -13,7 +13,7 @@ URL: rtmp://localhost/live
 Stream key: STREAM_NAME?secret=secret
 ```
 
-- Fix urls in `/video-stream/client/client.lua`
+- Fix url in `/video-stream/client/client.lua`
 
 Type `/video-stream` to start streaming
 
