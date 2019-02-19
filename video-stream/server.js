@@ -96,6 +96,9 @@ function onPostPublish (stream) {
 
 		wss.broadcast((JSON.stringify({ type: 'video-stream:open' })))
 
+		if (global.emitNet)
+			global.emitNet('video-stream:status', -1, published)
+
 		// Send video to consummers
 		streamProc = stream
 		stream = stream.stdout
@@ -114,8 +117,13 @@ function onDonePublish (stream) {
 		if (stream) stream.kill()
 
 		published = false
+		streamProc = null
 
 		wss.broadcast((JSON.stringify({ type: 'video-stream:close' })))
+
+		if (global.emitNet) setImmediate(function () {
+			global.emitNet('video-stream:status', -1, published)
+		})
 
 		console.log('video-stream stream stopped.')
 	}
@@ -168,14 +176,22 @@ server.listen(PORT, function () {
 	}
 })
 
-// Add command to set stream from path (non obs source)
 if (global.RegisterCommand) {
+	// Check stream status
+	global.onNet('video-stream:status', function () {
+		const src = global.source
+		setImmediate(function () {
+			global.emitNet('video-stream:status', src, published)
+		})
+	})
+
+	// Add command to set stream from path (non obs source)
 	global.RegisterCommand('video-stream:set', function (src, arg) {
+		if (streamProc) streamProc.kill()
+
 		if (arg[0]) {
-			if (streamProc) streamProc.kill()
-
 			streamProc = VideoStream(arg[0])
-
+			streamProc.on('close', function () { onDonePublish() })
 			onPostPublish(streamProc)
 		}
 	}, true)
