@@ -17,14 +17,6 @@ Stream key: STREAM_NAME?secret=secret
 
 Type `/video-stream` to start streaming
 
-# Contribute
-
-## Issues
-### POC
-There's noticeable lag between the audio and video when viewed in game.
-
-It may never perform well and is likely to be abandoned.
-
 # LICENSE
 __MIT__
 
