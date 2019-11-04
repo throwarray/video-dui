@@ -1,7 +1,8 @@
--------------------
---server_ip:port/
-local streamURL = "http://192.168.1.142:3000/dui/index.html"
-local streamOfflineURL = "http://192.168.1.142:3000/dui/off.html"
+local endpoint = SplitHostPort(GetCurrentServerEndpoint())
+
+-- use client connecting endpoint
+local streamURL = string.format("http://%s:3000/dui/index.html", endpoint)
+local streamOfflineURL = string.format("http://%s:3000/dui/off.html", endpoint)
 
 RegisterCommand('video-stream', function (source, arg, rawInput)
 	SetEntityCoords(PlayerPedId(), 320.217, 263.81, 82.974)
@@ -17,10 +18,10 @@ local screenEntity = 0
 local screenModel = GetHashKey('v_ilev_cin_screen')
 local handle = CreateNamedRenderTargetForModel('cinscreen', screenModel)
 
-local txd = Citizen.InvokeNative(GetHashKey("CREATE_RUNTIME_TXD"), 'video', Citizen.ResultAsLong())
-local duiObj = Citizen.InvokeNative(GetHashKey('CREATE_DUI'), streamOfflineURL, screenWidth, screenHeight, Citizen.ResultAsLong())
-local dui = Citizen.InvokeNative(GetHashKey('GET_DUI_HANDLE'), duiObj, Citizen.ResultAsString())
-local tx = Citizen.InvokeNative(GetHashKey("CREATE_RUNTIME_TEXTURE_FROM_DUI_HANDLE") & 0xFFFFFFFF, txd, 'test', dui, Citizen.ResultAsLong())
+local txd = CreateRuntimeTxd('video')
+local duiObj = CreateDui(streamOfflineURL, screenWidth, screenHeight)
+local dui = GetDuiHandle(duiObj)
+local tx = CreateRuntimeTextureFromDuiHandle(txd, 'test', dui)
 local streamOnline = false
 
 -- Receive status event
@@ -46,7 +47,7 @@ function setDuiURL (url)
 end
 
 
-Citizen.CreateThread(function ()
+CreateThread(function ()
 	local playerPed
 	local playerCoords
 	local inRange = false
@@ -91,11 +92,11 @@ Citizen.CreateThread(function ()
 			-- Draw screen in range
 			SetTextRenderId(handle)
 			Set_2dLayer(4)
-			Citizen.InvokeNative(0xC6372ECD45D73BCD, 1)
+			SetScriptGfxDrawBehindPausemenu(1)
 			DrawRect(0.5, 0.5, 1.0, 1.0, 0, 0, 0, 255)
 			DrawSprite("video", "test", 0.5, 0.5, 1.0, 1.0, 0.0, 255, 255, 255, 255)
 			SetTextRenderId(GetDefaultScriptRendertargetRenderId()) -- reset
-			Citizen.InvokeNative(0xC6372ECD45D73BCD, 0)
+			SetScriptGfxDrawBehindPausemenu(0)
 		else
 			if getDuiURL() ~= streamOfflineURL then
 				setDuiURL(streamOfflineURL)
@@ -111,7 +112,7 @@ AddEventHandler('onResourceStop', function (resource)
 	if resource == GetCurrentResourceName() then
 		SetDuiUrl(duiObj, 'about:blank')
 		DestroyDui(duiObj)
-		Citizen.InvokeNative(0xE9F6FFE837354DD4, 'tvscreen')
+		ReleaseNamedRendertarget('tvscreen')
 		SetEntityAsMissionEntity(screenEntity, false, true)
 		DeleteObject(screenEntity)
 	end
