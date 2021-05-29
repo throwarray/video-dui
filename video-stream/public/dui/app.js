@@ -2,6 +2,13 @@ const canvas = document.getElementById('video-canvas')
 const port = document.location.port? ':' + document.location.port : ''
 const url = 'ws://' + document.location.hostname + port + '/'
 
+function resize () {
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+}
+
+window.onresize = resize;
+
 const player = new window.JSMpeg.Player(url, {
 	source: window.JSMpeg.Source.WebSocket(function () {
 		player.source.socket.send('video-stream:join')
@@ -26,4 +33,5 @@ const player = new window.JSMpeg.Player(url, {
 	autoplay: true
 })
 
+resize();
 console.log('[video-stream] dui ready')

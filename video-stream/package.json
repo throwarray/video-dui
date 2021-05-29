@@ -1,7 +1,8 @@
 {
-  "name": "jsmpeg-master",
+  "name": "video-stream",
   "version": "1.0.0",
-  "description": "JSMpeg is a Video Player written in JavaScript. It consists of an MPEG-TS demuxer, MPEG1 video & MP2 audio decoders, WebGL & Canvas2D renderers and WebAudio sound output. JSMpeg can load static videos via Ajax and allows low latency streaming (~50ms) via WebSockets.",
+  "description": "Watch videos with friends in FiveM. Stream from path or rtmp server",
+  "private": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
@@ -9,11 +10,11 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "dotenv": "^6.2.0",
-    "ffmpeg-static": "^2.4.0",
-    "finalhandler": "^1.1.1",
-    "node-media-server": "^1.5.1",
-    "serve-static": "^1.13.2",
-    "ws": "^7.4.5"
+    "dotenv": "^10.0.0",
+    "ffmpeg-static": "^4.3.0",
+    "finalhandler": "^1.1.2",
+    "node-media-server": "^2.2.6",
+    "serve-static": "^1.14.1",
+    "ws": "^7.4.6"
   }
 }
