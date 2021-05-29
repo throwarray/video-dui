@@ -14,6 +14,6 @@
     "finalhandler": "^1.1.1",
     "node-media-server": "^1.5.1",
     "serve-static": "^1.13.2",
-    "ws": "^7.4.5"
+    "ws": "^7.4.6"
   }
 }
