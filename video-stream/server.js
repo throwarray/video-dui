@@ -9,7 +9,7 @@ const WebSocket = require('ws')
 const finalhandler = require('finalhandler')
 const serveStatic = require('serve-static')
 const { spawn } = require('child_process')
-const ffmpegPath = require('ffmpeg-static')
+const ffmpegPath = process.env.FFMPEG_PATH || require('ffmpeg-static')
 const NodeMediaServer = require('node-media-server')
 
 const RTMP_ENABLED = process.env.RTMP_ENABLED || 0
