@@ -12,7 +12,7 @@ Watch videos with friends in FiveM by playing from path/url or streaming with OB
 ensure video-stream
 ```
 
-yarn should automatically build the resource on start, if install fails you can do so manually with `npm i` and remove the yarn dependency from `__resource.lua`.
+yarn should automatically build the resource on start, if install fails you can do so manually with `npm i` and remove the yarn dependency from `__resource.lua`. Note that __npm__ is required to manually install the dependencies. 
 
 ## Streaming
 
@@ -41,11 +41,16 @@ STREAM_PATH=rtmp://localhost:1935/live/STREAM_NAME # The RTMP stream path
 FFMPEG_PATH=c:\ffmpeg\ffmpeg.exe # (optional) path to the ffmpeg binary to use
 ```
 
+It's recommended to disable the RTMP feature if you aren't intending to stream from OBS. At the very least change the `RTMP_SECRET`.
+
 ## Images
 
 <img src="https://user-images.githubusercontent.com/15322107/120053908-27e03b00-c02d-11eb-8697-0a4da4d86e0e.png" height="250">
 
 <img src="https://user-images.githubusercontent.com/15322107/120053907-26af0e00-c02d-11eb-82da-52131000e3c0.png" height="250">
+
+## Contribution
+This repository was intended as a proof of concept however any issues or pull requests are welcome.
 
 ## License
 __MIT__
