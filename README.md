@@ -46,6 +46,8 @@ FFMPEG_PATH=c:\ffmpeg\ffmpeg.exe # The path to a custom ffmpeg binary (optional)
 ```
 It's recommended to disable the RTMP feature if you aren't intending to stream from __OBS__. At the very least change the `RTMP_SECRET`
 
+## Demo
+[![Click to view video](http://img.youtube.com/vi/FxtIwBUKkUg/0.jpg)](http://www.youtube.com/watch?v=FxtIwBUKkUg "Click to view video")
 
 ## Images
 
