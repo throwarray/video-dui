@@ -11,7 +11,7 @@ Watch videos with friends in FiveM by playing from path/url or streaming with OB
 ```
 ensure video-stream
 ```
-When started, the yarn resource should automatically install the required dependencies. If the installation fails you can do so manually with `npm i` and remove the yarn dependency from `__resource.lua`. Note that __npm__ is required to manually install the dependencies. 
+When started, the yarn resource should automatically install the required dependencies. If the installation fails you can do so manually with `npm i` and remove the yarn dependency from `__resource.lua`. Note that npm is required to manually install the dependencies. 
 
 
 ## Streaming
@@ -23,7 +23,7 @@ The `/video-stream:set` command can play videos by path/url
 - `/video-stream:set D:\video.mp4`
 - `/video-steam:set` without arguments stops playback.
 
-To publish to the optional RTMP server configure __OBS__ and _Start Streaming_.
+To publish to the optional RTMP server configure OBS and _Start Streaming_.
 
 ```
 Service: Custom Streaming Server
@@ -44,7 +44,7 @@ RTMP_SECRET=secret # A secret required to publish videos to the RTMP server
 STREAM_PATH=rtmp://localhost:1935/live/STREAM_NAME # The RTMP stream path
 FFMPEG_PATH=c:\ffmpeg\ffmpeg.exe # The path to a custom ffmpeg binary (optional)
 ```
-It's recommended to disable the RTMP feature if you aren't intending to stream from __OBS__. At the very least change the `RTMP_SECRET`
+It's recommended to disable the RTMP feature if you aren't intending to stream from OBS. At the very least change the `RTMP_SECRET`
 
 ## Demo
 [![Click to view video](http://img.youtube.com/vi/FxtIwBUKkUg/0.jpg)](http://www.youtube.com/watch?v=FxtIwBUKkUg "Click to view video")
