@@ -11,7 +11,7 @@ Watch videos with friends in FiveM by playing from path/url or streaming with OB
 ```
 ensure video-stream
 ```
-When started, the yarn resource should automatically install the required dependencies. If the installation fails you can do so manually with `npm i` and remove the yarn dependency from `__resource.lua`. Note that npm is required to manually install the dependencies. 
+When started, the yarn resource should automatically install the required dependencies. If the installation fails you can do so manually with `npm i` and remove the yarn dependency from `fxmanifest.lua`. Note that npm is required to manually install the dependencies. 
 
 
 ## Streaming
@@ -37,7 +37,7 @@ Stream key: STREAM_NAME?secret=secret
 ## Configuration
 
 ```
-PORT=3000 # The port the HTTP server should listen on (open this port)
+PORT=3000 # The port the HTTP and WebSocket server should listen on (open this port)
 RTMP_ENABLED=1 # Whether the RTMP server should be enabled (optional*)
 RTMP_PORT=1935 # The port the RTMP server should listen on (open this port*)
 RTMP_SECRET=secret # A secret required to publish videos to the RTMP server
