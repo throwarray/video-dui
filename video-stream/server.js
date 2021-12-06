@@ -1,22 +1,25 @@
 const path = require('path')
+const fs = require('fs')
+const dotenv = require('dotenv')
+
 const resourcePath = global.GetResourcePath?
 	global.GetResourcePath(global.GetCurrentResourceName()) : global.__dirname
 
-require('dotenv').config({ path: path.join(resourcePath, './.env') })
+const config = dotenv.parse(fs.readFileSync(path.join(resourcePath, '.env')))
 
 const http = require('http')
 const WebSocket = require('ws')
 const finalhandler = require('finalhandler')
 const serveStatic = require('serve-static')
 const { spawn } = require('child_process')
-const ffmpegPath = process.env.FFMPEG_PATH || require('ffmpeg-static')
+const ffmpegPath = config.FFMPEG_PATH || require('ffmpeg-static')
 const NodeMediaServer = require('node-media-server')
 
-const RTMP_ENABLED = process.env.RTMP_ENABLED || 0
-const RTMP_PORT = process.env.RTMP_PORT || 1935
-const RTMP_SECRET = process.env.RTMP_SECRET || 'secret'
-const PORT = process.env.PORT || 3000
-const STREAM_PATH = process.env.STREAM_PATH ||
+const RTMP_ENABLED = config.RTMP_ENABLED || 0
+const RTMP_PORT = config.RTMP_PORT || 1935
+const RTMP_SECRET = config.RTMP_SECRET || 'secret'
+const PORT = config.PORT || 3000
+const STREAM_PATH = config.STREAM_PATH ||
 	`rtmp://localhost:${RTMP_PORT}/live/STREAM_NAME`
 
 let streamProc
@@ -195,4 +198,6 @@ if (global.RegisterCommand) {
 			onPostPublish(streamProc)
 		}
 	}, true)
+
+	SetConvarReplicated("video_stream_port", config.PORT)
 }

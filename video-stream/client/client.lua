@@ -1,15 +1,11 @@
-local endpoint = SplitHostPort(GetCurrentServerEndpoint())
-
--- use client connecting endpoint
-local streamURL = string.format("http://%s:3000/dui/index.html", endpoint)
-local streamOfflineURL = string.format("http://%s:3000/dui/off.html", endpoint)
-
 RegisterCommand('video-stream', function (source, arg, rawInput)
 	SetEntityCoords(PlayerPedId(), 320.217, 263.81, 82.974)
 	SetEntityHeading(PlayerPedId(), 180.0)
 end)
 
 -------------------
+
+local streamOfflineURL <const> = string.format("nui://%s/public/dui/off.html", GetCurrentResourceName())
 
 local scale = 1.5
 local screenWidth = math.floor(1280 / scale)
@@ -57,6 +53,12 @@ CreateThread(function ()
 
 	-- Give time for resource to start
 	Wait(3500)
+
+	-- Gather the stream url
+	local endpoint = SplitHostPort(GetCurrentServerEndpoint())
+
+	local port = GetConvarInt("video_stream_port", 3000)
+	local streamURL = string.format("http://%s:%d/dui/index.html", endpoint, port)
 
 	-- Check stream status
 	TriggerServerEvent('video-stream:status')
