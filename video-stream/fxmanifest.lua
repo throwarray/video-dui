@@ -12,3 +12,5 @@ client_scripts {
 server_scripts {
 	'server.js'
 }
+
+file "public/dui/off.html"
