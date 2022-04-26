@@ -34,6 +34,8 @@ function VideoStream (filePath = STREAM_PATH) {
 		'-f', 'mpegts',
 		'-c:a', 'mp2',
 		'-c:v', 'mpeg1video',
+		// can we tweaked, lower the better quality but also the higher bandwidth
+		'-q', '8',
 		'pipe:1'
 	], { stdio: ['pipe', 'pipe', process.stderr] })
 
