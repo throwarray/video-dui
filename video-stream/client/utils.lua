@@ -16,7 +16,7 @@ end
 function RequestTextureDictionary (dict)
 	RequestStreamedTextureDict(dict)
 
-	while not HasStreamedTextureDictLoaded(dict) do Citizen.Wait(0) end
+	while not HasStreamedTextureDictLoaded(dict) do Wait(0) end
 
 	return dict
 end
@@ -26,13 +26,13 @@ function LoadModel (model)
 
 	RequestModel(model)
 
-	while not HasModelLoaded(model) do Citizen.Wait(0) end
+	while not HasModelLoaded(model) do Wait(0) end
 
 	return model
 end
 
 -- splits a network address to ip, port compatible with IPv4 and IPv6
-function SplitHostPort(host)
+function SplitHostPort (host)
     local address, port
 
     -- if starts with '[' assume it's IPv6
