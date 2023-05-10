@@ -5,7 +5,7 @@ end)
 
 -------------------
 
-local streamOfflineURL <const> = string.format("nui://%s/public/dui/off.html", GetCurrentResourceName())
+local streamOfflineURL <const> = string.format("https://cfx-nui-%s/public/dui/off.html", GetCurrentResourceName())
 
 local scale = 1.5
 local screenWidth = math.floor(1280 / scale)
